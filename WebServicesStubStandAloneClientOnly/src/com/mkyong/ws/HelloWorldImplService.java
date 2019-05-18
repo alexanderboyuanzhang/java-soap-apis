@@ -26,7 +26,7 @@ public class HelloWorldImplService
     static {
         URL url = null;
         try {
-            url = new URL("http://localhost:9998/ws/hello?wsdl");
+            url = new URL("http://localhost:9999/ws/hello?wsdl");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
