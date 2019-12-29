@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2011 Talend Inc. - www.talend.com All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Apache License v2.0 which accompanies this distribution, and 
+	is available at http://www.apache.org/licenses/LICENSE-2.0 -->
+
+<!--********************************************************* definitions -->
+<!-- definitions: element must be the root element of all WSDL documents. 
+	1 - is a container of all the other elements. 
+	2 - It defines the name of the web service. 
+	3 - specifies a targetNamespace attribute. The targetNamespace 
+		is a convention of XML Schema that enables the WSDL document to refer to 
+		itself. In this example, we have specified a targetNamespace of http://services.talend.org/CRMService 
+	4 - specifies a default namespace: xmlns=http://schemas.xmlsoap.org/wsdl/. 
+		All elements without a namespace prefix, such as message or portType, are 
+		therefore assumed to be a part of the default WSDL namespace. 
+	5 - specifies numerous namespaces that are used throughout the remainder of the document. 
+	6 - The namespace specification does not require the document to be present 
+		at the given location. The important point is that you specify a value that 
+		is unique, different from all other namespaces that are defined. -->
+
+
+<!--************* Developer's note: targetNamespace, xmlns:api, xmlns:tns -->
+<!--******** default: xmlns, xmlns:jms, xmlns:soap, xmlns:wsdl, xmlns:xsd -->
+<definitions name="ServiceAPI"
+	targetNamespace="http://services.talend.org/CRMService"
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:api="http://services.talend.org/api/types"
+	xmlns:jms="http://schemas.xmlsoap.org/wsdl/jms/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://services.talend.org/CRMService"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<!--*************************************************************** types -->
+	<!-- A web service needs to define its inputs and outputs and how they are 
+		mapped into and out of the services. WSDL <types> element takes care of defining 
+		the data types that are used by the web service. Types are XML documents, 
+		or document parts. 
+		1 - The types element describes all the data types used between the client and the server. 
+		2 - WSDL is not tied exclusively to a specific typing system. 
+		4 - WSDL uses the W3C XML Schema specification as its default choice to define data types. 
+		5 - If the service uses only XML Schema built-in simple types, such as strings and integers, 
+			then types element is not required. 
+		6 - WSDL allows the types to be defined in separate elements so that the types 
+			are reusable with multiple web services. 
+		7 - Data types address the problem of identifying the data types and the formats 
+			you intend to use with your web services. Type information is shared between the sender and the receiver. 
+			The recipients of messages therefore need access to the information you used 
+			to encode your data and must understand how to decode the data. 	
+	-->
+
+	<types>
+		<!-- *********************** Developer's note: targetNamespace, xmlns -->
+		<xsd:schema elementFormDefault="unqualified"
+			targetNamespace="http://services.talend.org/api/types"
+			xmlns="http://services.talend.org/api/types">
+			<xsd:element name="CustomerDetails"
+				type="api:CustomerDetailsType" />
+			<xsd:element name="LoginUser" type="api:LoginUserType" />
+			<xsd:element name="RYLCStatus" type="api:RYLCStatusType" />
+			<xsd:complexType name="LoginUserType">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="name"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="username"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="email"
+						type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="CustomerDetailsType">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="city"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="email"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="gender"
+						type="xsd:string" />
+					<xsd:element name="id" type="xsd:long" />
+					<xsd:element minOccurs="0" name="name"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="status"
+						type="api:CRMStatusType" />
+					<xsd:element minOccurs="0" name="street"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="username"
+						type="xsd:string" />
+					<xsd:element minOccurs="0" name="zip" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:simpleType name="CRMStatusType">
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="NONE" />
+					<xsd:enumeration value="NORMAL" />
+					<xsd:enumeration value="GOLD" />
+					<xsd:enumeration value="PLATINUM" />
+				</xsd:restriction>
+			</xsd:simpleType>
+			<xsd:complexType name="RYLCStatusType">
+				<xsd:sequence>
+					<xsd:element name="customerId" type="xsd:long" />
+					<xsd:element name="code" type="api:RYLCStatusCodeType" />
+					<xsd:element name="creditPoints" type="xsd:integer" />
+					<xsd:element name="description" type="xsd:string"
+						minOccurs="0" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:simpleType name="RYLCStatusCodeType">
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="ACTIVE" />
+					<xsd:enumeration value="INACTIVE" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:schema>
+	</types>
+	<!-- ************************************************************** message -->
+	<!-- The <message> element describes the data being exchanged between the 
+			web service providers and the consumers. 
+		1 - Each Web Service has two messages: input and output. 
+		2 - The input describes the parameters for the web service 
+			and the output describes the return data from the web service. 
+		3 - Each message contains zero or more <part> parameters, one for each parameter of the web 
+			service function. 
+		4 - Each <part> parameter associates with a concrete type 
+			defined in the <types> container element. 
+		5 - At least two message elements 
+			must be defined. 
+		6 - The first represents a request message, and the second 
+			represents a response message. 
+		7 - Each of these messages contains a single part element. 
+			For the request, the part specifies the function parameters; 
+			we can specify a single parameter or an element for both request and response
+	-->
+	<message name="getCRMInformationRequest">
+		<part element="api:LoginUser" name="body" />
+	</message>
+	<message name="getCRMInformationResponse">
+		<part element="api:CustomerDetails" name="body" />
+	</message>
+	<message name="getCRMStatusRequest">
+		<part element="api:CustomerDetails" name="body" />
+	</message>
+	<message name="getCRMStatusResponse">
+		<part element="api:RYLCStatus" name="body" />
+	</message>
+	<message name="updateCRMStatusRequest">
+		<part element="api:RYLCStatus" name="body" />
+	</message>
+
+	<!-- ********************************** portType - operation - input - output -->
+	<!-- The <portType> element combines multiple message elements to form a 
+		complete one-way or round-trip operation. 
+		1 - For example, a <portType> can combine one request and one response message into a single request/response 
+			operation. This is most commonly used in SOAP services. A portType can define 
+			multiple operations. 
+		2 - In this case the portType element called CRMService 
+			defines multiple operations, 
+		3 - The operation getCRMInformation for instance 
+			consists of an input message like getCRMInformationRequest and an output 
+			message like getCRMInformationResponse 
+	-->
+	<portType name="CRMService">
+		<operation name="getCRMInformation">
+			<input message="tns:getCRMInformationRequest" />
+			<output message="tns:getCRMInformationResponse" />
+		</operation>
+		<operation name="getCRMStatus">
+			<input message="tns:getCRMStatusRequest" />
+			<output message="tns:getCRMStatusResponse" />
+		</operation>
+		<operation name="updateCRMStatus">
+			<input message="tns:updateCRMStatusRequest" />
+		</operation>
+	</portType>
+	<!--************************************************************************** -->
+	<!--********************************** wsdl:service - wsdl:port - soap:address -->
+
+	<!-- 
+		The <service> element defines the ports supported by the web service. 
+		For each of the supported protocols, there is one port element. The service 
+		element is a collection of ports. 
+		1 - Web service clients can learn the following from the service element 
+		2 - where to access the service
+		3 - through which port to access the web service and
+		4 - how the communication messages are defined.
+		5 - The service element includes a documentation element to provide human-readable documentation.
+	-->
+
+	<wsdl:service name="CRMServiceProvider">
+		<!-- 
+			The port element has two attributes: name and binding. 
+			1 - The name attribute provides a unique name among all ports defined within the enclosing WSDL document. 
+			2 - The binding attribute refers to the binding using the linking rules defined by WSDL. 
+			3 - Binding extensibility elements are used to specify the address information for the port. 
+			4 - A port MUST NOT specify more than one address. 
+			5 - A port MUST NOT specify any binding information other than address information. 
+
+		-->
+
+		<!-- ************************************************************* port -->
+
+		<wsdl:port binding="tns:CRMServiceBinding"
+			name="CRMServicePort">
+			<soap:address
+				location="http://localhost:8090/services/CRMServiceProvider" />
+		</wsdl:port>
+	</wsdl:service>
+
+	<!-- ************************************************************** binding -->
+	<!-- 
+		The <binding> element provides specific details on how a portType operation 
+		will actually be transmitted over the wire.
+		
+			1 - The bindings can be made available via multiple transports 
+				including HTTP GET, HTTP POST, or SOAP. 
+			2 - The bindings provide concrete information on what protocol is 
+				being used to transfer portType operations. 
+			3 - The bindings provide information where the service is located. 
+			4 - For SOAP protocol, the binding is <soap:binding>, and the transport is 
+				SOAP messages on top of HTTP protocol. 
+			5 - You can specify multiple bindings for a single portType. 
+			6 - The binding element has two attributes: name and type attribute. 
+			7 - The name attribute defines the name of the binding, and the type 
+				attribute points to the port for the binding, in this case 
+				the "tns:Hello_PortType" port. SOAP 
+				
+		BINDING: 
+			1 - WSDL 1.1 includes built-in extensions for SOAP 1.1. 
+			2 - It allows you to specify SOAP specific details including SOAP headers, 
+			3 - SOAP encoding styles, and the SOAPAction HTTP header. 
+			4 - The SOAP extension elements include the following: 
+				- soap:binding 
+				- soap:operation 
+				- soap:body 
+		
+		soap:binding: 
+			1 - This element indicates that the binding will be made available 
+				via SOAP. The style attribute indicates the overall style of the SOAP message 
+				format. A style value of rpc specifies an RPC format. 
+			2 - The transport attribute indicates the transport of the SOAP messages. 
+				The value http://schemas.xmlsoap.org/soap/http 
+				indicates the SOAP HTTP transport, whereas http://schemas.xmlsoap.org/soap/smtp 
+				indicates the SOAP SMTP transport. soap:operation: 
+			3 - This element indicates the binding of a specific operation to a specific SOAP implementation. The 
+				soapAction attribute specifies that the SOAPAction HTTP header be used for 
+				identifying the service. soap:body: 
+			4 - This element enables you to specify the details of the input and output messages. 
+	-->
+
+
+	<!-- wsdl:binding - soap:port - wsdl:operation - soap:operation - wsdl:input 
+		- soap:body -->
+	<wsdl:binding name="CRMServiceBinding"
+		type="tns:CRMService">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="getCRMInformation">
+			<soap:operation soapAction="getCRMInformation" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getCRMStatus">
+			<soap:operation soapAction="getCRMStatus" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="updateCRMStatus">
+			<soap:operation soapAction="updateCRMStatus" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+	</wsdl:binding>
+</definitions>

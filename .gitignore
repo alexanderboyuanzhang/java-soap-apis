@@ -1,0 +1,9 @@
+# eclipse
+*/build/
+*/bin/
+*.classpath
+*.class
+*/Debug/
+*/Release/
+*.jar
+*/.settings/
